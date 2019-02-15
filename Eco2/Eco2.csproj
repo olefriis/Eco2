@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{26EAE3B7-33D9-4046-8980-D0AE7F1D3FC2}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Eco2</RootNamespace>
+    <AssemblyName>Eco2</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Xamarin.Mac">
+      <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\5.2.1.15\lib\x86_64\full\Xamarin.Mac.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Uuids.cs" />
+    <Compile Include="Commands\Read.cs" />
+    <Compile Include="Commands\Scan.cs" />
+    <Compile Include="Commands\Forget.cs" />
+    <Compile Include="Parsing\Temperature.cs" />
+    <Compile Include="Parsing\TimeInterval.cs" />
+    <Compile Include="Parsing\DailySchedule.cs" />
+    <Compile Include="Commands\Show.cs" />
+    <Compile Include="Commands\ListThermostats.cs" />
+    <Compile Include="Parsing\Timestamp.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Commands\" />
+    <Folder Include="Parsing\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Eco2Foundation\Eco2Foundation.csproj">
+      <Project>{6C14B3D1-E357-483E-BD37-FA06E69620AE}</Project>
+      <Name>Eco2Foundation</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\5.2.1.15\lib\libxammac.dylib">
+      <Link>libxammac.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -124,3 +124,7 @@ This project is based largely on the information from the
 The XXTEA implementation is from the [xxtea-dotnet](https://github.com/xxtea/xxtea-dotnet)
 project, modified such that the length of the input byte array is not included
 in the encoded data. Accompanying license file is included in this repository.
+
+Also thanks to my colleague [Simon](https://github.com/john7doe) who pushed me
+in the first place and pointed me to the relevant parts of the Danfoss-BLE
+repo mentioned above.

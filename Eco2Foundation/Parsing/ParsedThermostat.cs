@@ -57,7 +57,8 @@ namespace Eco2.Parsing
 
         public string DeviceName
         {
-            get { return Encoding.ASCII.GetString((byte[])(Array)deviceNameBytes); }
+            // Removing 0-bytes, as the device name gets padded with 0s
+            get { return Encoding.ASCII.GetString(Array.FindAll(deviceNameBytes, b => b != 0)); }
         }
 
         public Temperature FrostProtectionTemperature

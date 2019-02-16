@@ -41,17 +41,11 @@
     <Compile Include="Commands\Read.cs" />
     <Compile Include="Commands\Scan.cs" />
     <Compile Include="Commands\Forget.cs" />
-    <Compile Include="Parsing\Temperature.cs" />
-    <Compile Include="Parsing\TimeInterval.cs" />
-    <Compile Include="Parsing\DailySchedule.cs" />
     <Compile Include="Commands\Show.cs" />
     <Compile Include="Commands\ListThermostats.cs" />
-    <Compile Include="Parsing\Timestamp.cs" />
-    <Compile Include="Parsing\ParsedThermostat.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Commands\" />
-    <Folder Include="Parsing\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Eco2Foundation\Eco2Foundation.csproj">

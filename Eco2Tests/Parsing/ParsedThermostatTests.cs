@@ -22,7 +22,7 @@ namespace Eco2Tests.Parsing
                 Name = "8F-EA-76-86-55-22-A2-82-F1-AB-F1-E4-17-1C-B0-02",
                 Settings = "BE-41-EC-A1-33-D9-17-60-CF-59-AE-39-A5-47-8E-A2",
                 Schedule1 = "79-3C-26-0B-9C-15-DE-55-B7-CA-2D-F8-43-AF-38-91-8E-4A-8D-7F",
-                Schedule2 = "B3-45-EF-23-3B-1B-11-F0-3C-9B-1B-0A",
+                Schedule2 = "C8-4E-6B-6B-68-D7-2A-1C-9C-2B-A9-16",
                 Schedule3 = "B3-45-EF-23-3B-1B-11-F0-3C-9B-1B-0A"
             };
         }

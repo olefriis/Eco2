@@ -117,9 +117,13 @@ Wednesday:
 
 Thursday:
 0:00 Home
+7:00 Away
+15:30 Home
 
 Friday:
 0:00 Home
+7:00 Away
+15:30 Home
 
 Saturday:
 0:00 Home

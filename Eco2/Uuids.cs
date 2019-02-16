@@ -18,7 +18,7 @@ namespace Eco2
         // Home temperature, Out temperature, Schedule Monday + Tuesday + Wednesday
         public const string SCHEDULE_1 = "1002000D-2749-0001-0000-00805F9B042F";
         // Schedule Thursday + Friday
-        public const string SCHEDULE_2 = "1002000F-2749-0001-0000-00805F9B042F";
+        public const string SCHEDULE_2 = "1002000E-2749-0001-0000-00805F9B042F";
         // Schedule Saturday + Sunday
         public const string SCHEDULE_3 = "1002000F-2749-0001-0000-00805F9B042F";
         public static readonly SortedSet<string> RELEVANT_CHARACTERISTICS = new SortedSet<string>(new String[]{

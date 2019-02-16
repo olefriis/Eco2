@@ -23,6 +23,10 @@ into something that will help you quickly set up your thermostats, set vacation
 mode on and off, read battery levels, etc. It can also work as the foundation
 for creating the missing piece in the Eco 2 ecosystem - a hub.
 
+Is this in any way an official project?
+===
+No. And if you brick your thermostats while using this tool, tough luck.
+
 Building
 ===
 This is a Mac-only project.

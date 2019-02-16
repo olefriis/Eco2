@@ -231,7 +231,6 @@ namespace Eco2.Commands
             thermostat.Schedule1 = CharacteristicValueAsHex(Uuids.SCHEDULE_1);
             thermostat.Schedule2 = CharacteristicValueAsHex(Uuids.SCHEDULE_2);
             thermostat.Schedule3 = CharacteristicValueAsHex(Uuids.SCHEDULE_3);
-            thermostat.Unknown = CharacteristicValueAsHex(Uuids.UNKNOWN);
 
             thermostats.Write();
         }

@@ -13,6 +13,5 @@
         public string Schedule1;
         public string Schedule2;
         public string Schedule3;
-        public string Unknown;
     }
 }

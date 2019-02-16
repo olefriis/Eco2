@@ -21,8 +21,6 @@ namespace Eco2
         public const string SCHEDULE_2 = "1002000F-2749-0001-0000-00805F9B042F";
         // Schedule Saturday + Sunday
         public const string SCHEDULE_3 = "1002000F-2749-0001-0000-00805F9B042F";
-        // 12 bytes. No idea what.
-        public const string UNKNOWN = "1002000C-2749-0001-0000-00805F9B042F";
         public static readonly SortedSet<string> RELEVANT_CHARACTERISTICS = new SortedSet<string>(new String[]{
             BATTERY_LEVEL,
             SECRET_KEY,
@@ -31,8 +29,7 @@ namespace Eco2
             SETTINGS,
             SCHEDULE_1,
             SCHEDULE_2,
-            SCHEDULE_3,
-            UNKNOWN
+            SCHEDULE_3
         });
     }
 }

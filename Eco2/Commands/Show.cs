@@ -67,8 +67,6 @@ namespace Eco2.Commands
             var saturdaySchedule = DailySchedule.Parse(schedule3.Take(6));
             var sundaySchedule = DailySchedule.Parse(schedule3.Skip(6).Take(6));
 
-            var unknown = xxTea.Decrypt(thermostat.Unknown);
-
             Console.WriteLine($"Device name: {deviceName}");
             Console.WriteLine($"Battery level: {batteryLevel}%");
             Console.WriteLine("");
@@ -96,7 +94,6 @@ namespace Eco2.Commands
             Console.WriteLine($"Sunday:\n{sundaySchedule}");
             Console.WriteLine("");
             Console.WriteLine($"Settings bytes: {FormatByteArray(settings)}");
-            Console.WriteLine($"Unknown bytes: {FormatByteArray(unknown)}");
         }
 
         string ParseScheduleMode(byte b)

@@ -87,6 +87,47 @@ The information fetched from the thermostats are stored in the `.eco2.xml` file
 in your home directory, which means that deleting this file will reset the state
 of the utility.
 
+Show me some example output!
+===
+Sure!
+```
+> mono Eco2/bin/Debug/Eco2.exe show "0;0:04:2F:06:24:DD;eTRV"
+Device name: Tilbygning
+Battery level: 78%
+
+Set-point/room temperature: 23°C / 23°C
+Home/away temperature: 23°C / 19°C
+Vacation/frost protection temperature: 15°C / 6°C
+Schedule mode: SCHEDULED
+
+Monday:
+0:00 Home
+7:00 Away
+15:30 Home
+
+Tuesday:
+0:00 Home
+7:00 Away
+15:30 Home
+
+Wednesday:
+0:00 Home
+7:00 Away
+15:30 Home
+
+Thursday:
+0:00 Home
+
+Friday:
+0:00 Home
+
+Saturday:
+0:00 Home
+
+Sunday:
+0:00 Home
+```
+
 Code Structure
 ===
 It may seem a little overkill with 3 projects in the solution instead of just

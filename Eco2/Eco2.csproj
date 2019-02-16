@@ -47,6 +47,7 @@
     <Compile Include="Commands\Show.cs" />
     <Compile Include="Commands\ListThermostats.cs" />
     <Compile Include="Parsing\Timestamp.cs" />
+    <Compile Include="Parsing\ParsedThermostat.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Commands\" />

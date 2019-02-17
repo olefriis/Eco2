@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using CoreBluetooth;
 using Eco2.Models;
+using Eco2.Parsing;
 using Foundation;
 
 namespace Eco2.Commands
 {
-    public class Read
+    public class Write
     {
         readonly string serial;
         Thermostats thermostats;
@@ -14,13 +15,16 @@ namespace Eco2.Commands
         // Ensure that our peripheral object doesn't get garbage-collected
         List<CBPeripheral> discoveredThermostats = new List<CBPeripheral>();
         CBPeripheral connectedThermostat;
-        SortedSet<string> characteristicValuesToRead;
-        Dictionary<string, NSData> characteristicValues = new Dictionary<string, NSData>();
 
-        public Read(string serial)
+        public Write(string serial)
         {
             this.serial = serial;
             this.thermostats = Thermostats.Read();
+            if (!thermostats.HasSecretFor(serial))
+            {
+                Console.Error.WriteLine($"Has not previously connected to {serial}. Do a read first.");
+                Environment.Exit(1);
+            }
         }
 
         public void Execute()
@@ -35,6 +39,7 @@ namespace Eco2.Commands
             var runLoop = NSRunLoop.Current;
             runLoop.RunUntil(NSDate.FromTimeIntervalSinceNow(120));
         }
+
 
         void DisconnectedPeripheral(object sender, CBPeripheralErrorEventArgs e)
         {
@@ -56,26 +61,8 @@ namespace Eco2.Commands
             var peripheral = discoveredPeripheralEventArgs.Peripheral;
             if (peripheral != null && peripheral.Name == serial)
             {
-                // This is weird behaviour... If we only connect to the first
-                // peripheral of this name, we seem to be connected after a
-                // while and can send the pin and read the properties except
-                // for the secret key.
-                // If we also try to connect to the subsequently discovered
-                // peripheral of the same name, the connection will block until
-                // you press the timer button on the thermostat. Then we can
-                // send the pin code and get the secret key.
-                if (thermostats.HasSecretFor(serial))
-                {
-                    Console.Error.WriteLine("Found thermostat. Connecting.");
-                    central.DiscoveredPeripheral -= DiscoveredPeripheral;
-                }
-                else
-                {
-                    if (discoveredThermostats.Count == 0)
-                    {
-                        Console.Error.WriteLine("Push the timer button on the thermostat");
-                    }
-                }
+                Console.Error.WriteLine("Found thermostat. Connecting.");
+                central.DiscoveredPeripheral -= DiscoveredPeripheral;
 
                 discoveredThermostats.Add(peripheral);
                 central.ConnectPeripheral(peripheral);
@@ -89,9 +76,6 @@ namespace Eco2.Commands
             connectedThermostat = e.Peripheral;
 
             connectedThermostat.DiscoveredService += DiscoveredService;
-            connectedThermostat.UpdatedCharacterteristicValue += UpdatedCharacterteristicValue;
-            connectedThermostat.WroteCharacteristicValue += WroteCharacteristicValue;
-
             connectedThermostat.DiscoverServices();
         }
 
@@ -143,6 +127,7 @@ namespace Eco2.Commands
                     Console.Error.WriteLine($"Did not find pin code characteristic ({Uuids.PIN_CODE_CHARACTERISTIC})");
                     Environment.Exit(1);
                 }
+                connectedThermostat.WroteCharacteristicValue += WrotePinValue;
                 Console.Error.WriteLine("Writing pin code");
                 byte[] bytes = { 0, 0, 0, 0 };
                 var zeroBytes = NSData.FromArray(bytes);
@@ -150,95 +135,46 @@ namespace Eco2.Commands
             }
         }
 
-        void WroteCharacteristicValue(object sender, CBCharacteristicEventArgs e)
+        void WrotePinValue(object sender, CBCharacteristicEventArgs e)
         {
+            connectedThermostat.WroteCharacteristicValue -= WrotePinValue;
+
             if (e.Error != null)
             {
                 Console.Error.WriteLine($"Could not write pin code value: {e.Error.Description}");
                 Environment.Exit(1);
             }
 
-            var batteryService = Array.Find(connectedThermostat.Services, service => service.UUID.Uuid == Uuids.BATTERY_SERVICE);
-            if (batteryService == null)
+            var pinCodeService = Array.Find(connectedThermostat.Services, s => s.UUID.Uuid == Uuids.PIN_CODE_SERVICE);
+            if (pinCodeService == null)
             {
-                Console.Error.WriteLine($"Did not find battery service ({Uuids.BATTERY_SERVICE})");
+                Console.Error.WriteLine($"Did not find pin code service ({Uuids.PIN_CODE_SERVICE})");
                 Environment.Exit(1);
             }
-            connectedThermostat.DiscoveredCharacteristic += DiscoveredCharacteristicsForBatteryService;
-            connectedThermostat.DiscoverCharacteristics(batteryService);
-        }
-
-        void DiscoveredCharacteristicsForBatteryService(object sender, CBServiceEventArgs e)
-        {
-            characteristicValuesToRead = new SortedSet<string>();
-            foreach (var service in connectedThermostat.Services)
+            var temperatureCharacteristic = Array.Find(pinCodeService.Characteristics, c => c.UUID.Uuid == Uuids.TEMPERATURE);
+            if (temperatureCharacteristic == null)
             {
-                Console.Error.WriteLine($"Service {service.UUID.Uuid} - {service.Description}");
-                if (service.Characteristics != null)
-                {
-                    foreach (var characteristic in service.Characteristics)
-                    {
-                        Console.Error.WriteLine($" - {characteristic.UUID.Uuid} - {characteristic.Description}");
-                        if (Uuids.RELEVANT_CHARACTERISTICS.Contains(characteristic.UUID.Uuid))
-                        {
-                            connectedThermostat.ReadValue(characteristic);
-                            characteristicValuesToRead.Add(characteristic.UUID.Uuid);
-                        }
-                    }
-                }
-            }
-            if (!characteristicValuesToRead.Contains(Uuids.SECRET_KEY)
-                && !thermostats.HasSecretFor(serial))
-            {
-                Console.Error.WriteLine("You need to push the timer button on the thermostat");
+                Console.Error.WriteLine($"Did not find temperature characteristic ({Uuids.TEMPERATURE})");
                 Environment.Exit(1);
             }
+
+            connectedThermostat.WroteCharacteristicValue += WroteTemperatureValue;
+            NSData data = NSData.FromArray(Conversion.HexStringToByteArray(thermostats.ThermostatWithSerial(serial).Temperature));
+            connectedThermostat.WriteValue(data, temperatureCharacteristic, CBCharacteristicWriteType.WithResponse);
         }
 
-        void UpdatedCharacterteristicValue(object sender, CBCharacteristicEventArgs e)
+        void WroteTemperatureValue(object sender, CBCharacteristicEventArgs e)
         {
+            connectedThermostat.WroteCharacteristicValue -= WroteTemperatureValue;
+
             if (e.Error != null)
             {
-                Console.Error.WriteLine($"Could not read value for characteristic: {e.Error.Description}");
+                Console.Error.WriteLine($"Could not write temperature value: {e.Error.Description}");
                 Environment.Exit(1);
             }
 
-            var uuid = e.Characteristic.UUID.Uuid;
-            var value = e.Characteristic.Value;
-            Console.WriteLine($"{uuid}: {value}");
-            characteristicValuesToRead.Remove(uuid);
-            characteristicValues[uuid] = value;
-            if (characteristicValuesToRead.Count == 0)
-            {
-                Console.Error.WriteLine("Read all values");
-                UpdateValuesForThermostat();
-                central.CancelPeripheralConnection(connectedThermostat);
-            }
-        }
-
-        void UpdateValuesForThermostat()
-        {
-            var thermostat = thermostats.ThermostatWithSerial(serial);
-
-            if (characteristicValues.ContainsKey(Uuids.SECRET_KEY))
-            {
-                thermostat.SecretKey = CharacteristicValueAsHex(Uuids.SECRET_KEY);
-            }
-            thermostat.BatteryLevel = CharacteristicValueAsHex(Uuids.BATTERY_LEVEL);
-            thermostat.Name = CharacteristicValueAsHex(Uuids.DEVICE_NAME);
-            thermostat.Temperature = CharacteristicValueAsHex(Uuids.TEMPERATURE);
-            thermostat.Settings = CharacteristicValueAsHex(Uuids.SETTINGS);
-            thermostat.Schedule1 = CharacteristicValueAsHex(Uuids.SCHEDULE_1);
-            thermostat.Schedule2 = CharacteristicValueAsHex(Uuids.SCHEDULE_2);
-            thermostat.Schedule3 = CharacteristicValueAsHex(Uuids.SCHEDULE_3);
-
-            thermostats.Write();
-        }
-
-        string CharacteristicValueAsHex(string uuid)
-        {
-            var binaryValue = characteristicValues[uuid];
-            return BitConverter.ToString(binaryValue.ToArray());
+            Console.Error.WriteLine("Wrote temperature value");
+            central.CancelPeripheralConnection(connectedThermostat);
         }
     }
 }

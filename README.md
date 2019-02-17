@@ -40,15 +40,18 @@ Just in case there's an issue with referencing the Mac bindings, go through the
 [steps to get the Xamarin bindings working](https://docs.microsoft.com/en-us/xamarin/mac/app-fundamentals/console).
 And file an issue in this project, as it shouldn't be an issue.
 
-Caveats
+Limitations
 ===
-Currently this tool only supports reading the thermostat values, and it only
-works on a Mac (as it uses the Core Bluetooth framework).
+Currently this tool only works on a Mac (as it uses the Core Bluetooth
+framework), and there is only limited support for setting values on the
+thermostats.
 
-Also, it's very much a work-in-progress. A lot of stuff is not implemented yet:
-- PIN codes can be set in the app, which will block this tool for now.
-- Altering and writing back schedules and settings are not supported yet.
-- ...and some settings are not parsed...
+PIN codes are not supported.
+
+In general this project is not aiming at getting full feature parity with the
+official apps. We think it's OK if you need to use the app to enable or disable
+adaptive learning, to switch between horizontal and vertical installation, and
+other things that you will probably only do once when setting up the thermostat.
 
 Usage
 ===
@@ -60,9 +63,11 @@ Too few arguments
 
 scan - scan nearby devices for 120 seconds (Ctrl-C to stop)
 read name - connect to and read specific thermostat
+write name - connect to specific thermostat and write all values
 forget name - forget about a specific thermostat
 list - show all of the previously read thermostats
 show name - output all previously read values from a thermostat
+set name attribute value - set the given attribute to the provided value
 ```
 
 In order to read a certain value from a thermostat, first of all you need to do
@@ -80,18 +85,24 @@ utility forget about that by calling the `forget` command.
 
 To read the current values from a thermostat, issue the `read` command again. To
 see the last read values without connecting to the thermostat, use the `show`
-command.
+command. To alter a value on the thermostat, use the `set` command, and to write
+back to the thermostat, use the `write` command.
 
-That's it!
-
-The information fetched from the thermostats are stored in the `.eco2.xml` file
-in your home directory, which means that deleting this file will reset the state
-of the utility.
-
-Show me some example output!
-===
-Sure!
+An example, in which we list the nearby thermostats, connect to and read from
+one of them, and set the set-point temperature a little higher than it was
+before:
 ```
+> mono Eco2/bin/Debug/Eco2.exe scan
+Scanning for thermostats for 120 seconds
+0;0:04:2F:06:25:A6;eTRV
+0;0:04:2F:06:25:A5;eTRV
+0;0:04:2F:C0:F3:0C;eTRV
+0;0:04:2F:06:24:D6;eTRV
+0;0:04:2F:06:24:D1;eTRV
+0;0:04:2F:C0:F2:58;eTRV
+0;0:04:2F:06:24:DD;eTRV
+> mono Eco2/bin/Debug/Eco2.exe read "0;0:04:2F:06:24:DD;eTRV"
+[...lots of debug output. Just ignore, unless it ends with a clear sign of failure...]
 > mono Eco2/bin/Debug/Eco2.exe show "0;0:04:2F:06:24:DD;eTRV"
 Device name: Tilbygning
 Battery level: 78%
@@ -131,7 +142,16 @@ Saturday:
 
 Sunday:
 0:00 Home
+> mono Eco2/bin/Debug/Eco2.exe set "0;0:04:2F:06:24:DD;eTRV" set-point-temperature 23.5
+> mono Eco2/bin/Debug/Eco2.exe write "0;0:04:2F:06:24:DD;eTRV"
+[...a bit of debug output. Just ignore, unless it ends with a clear sign of failure...]
 ```
+
+That's it!
+
+The information fetched from the thermostats are stored in the `.eco2.xml` file
+in your home directory, which means that deleting this file will reset the state
+of the utility.
 
 Code Structure
 ===

@@ -20,6 +20,10 @@ namespace Eco2
                     RequireNumberOfArguments(2, args);
                     new Read(args[1]).Execute();
                     break;
+                case "write":
+                    RequireNumberOfArguments(2, args);
+                    new Write(args[1]).Execute();
+                    break;
                 case "forget":
                     RequireNumberOfArguments(2, args);
                     new Forget(args[1]).Execute();
@@ -31,6 +35,10 @@ namespace Eco2
                 case "show":
                     RequireNumberOfArguments(2, args);
                     new Show(args[1]).Execute();
+                    break;
+                case "set":
+                    RequireNumberOfArguments(4, args);
+                    new SetValue(args[1], args[2], args[3]).Execute();
                     break;
                 default:
                     QuitWithUsage($"Unknown command: {args[0]}");
@@ -60,9 +68,11 @@ namespace Eco2
             Console.WriteLine();
             Console.WriteLine("scan - scan nearby devices for 120 seconds (Ctrl-C to stop)");
             Console.WriteLine("read name - connect to and read specific thermostat");
+            Console.WriteLine("write name - connect to specific thermostat and write all values");
             Console.WriteLine("forget name - forget about a specific thermostat");
             Console.WriteLine("list - show all of the previously read thermostats");
             Console.WriteLine("show name - output all previously read values from a thermostat");
+            Console.WriteLine("set name attribute value - set the given attribute to the provided value");
 
             Environment.Exit(1);
         }

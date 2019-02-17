@@ -2,18 +2,28 @@
 {
     public class Temperature
     {
-        readonly int value;
-
-        public Temperature(int value)
+        public static Temperature Parse(byte b)
         {
-            this.value = value;
+            return new Temperature(b);
         }
 
-        public float ValueInDegreesCelcius
+        public static Temperature FromDegreesCelcius(float degreesCelcius)
         {
-            get { return value / 2F; }
+            return new Temperature((byte)(degreesCelcius * 2));
         }
 
-        public override string ToString() => (value / 2.0) + "°C";
+        Temperature(byte value)
+        {
+            this.Value = value;
+        }
+
+        public float InDegreesCelcius
+        {
+            get { return Value / 2F; }
+        }
+
+        public byte Value { get; }
+
+        public override string ToString() => (Value / 2.0) + "°C";
     }
 }

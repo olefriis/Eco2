@@ -63,12 +63,12 @@ namespace Eco2.Parsing
 
         public Temperature FrostProtectionTemperature
         {
-            get { return new Temperature(settingsBytes[3]); }
+            get { return Temperature.Parse(settingsBytes[3]); }
         }
 
         public Temperature VacationTemperature
         {
-            get { return new Temperature(settingsBytes[5]); }
+            get { return Temperature.Parse(settingsBytes[5]); }
         }
 
         public ScheduleModes ScheduleMode
@@ -101,22 +101,27 @@ namespace Eco2.Parsing
 
         public Temperature SetPointTemperature
         {
-            get { return new Temperature(temperatureBytes[0]); }
+            get { return Temperature.Parse(temperatureBytes[0]); }
+            set
+            {
+                temperatureBytes[0] = value.Value;
+                WriteTemperatureBytesBackToThermostat();
+            }
         }
 
         public Temperature RoomTemperature
         {
-            get { return new Temperature(temperatureBytes[1]); }
+            get { return Temperature.Parse(temperatureBytes[1]); }
         }
 
         public Temperature HomeTemperature
         {
-            get { return new Temperature(schedule1Bytes[0]); }
+            get { return Temperature.Parse(schedule1Bytes[0]); }
         }
 
         public Temperature AwayTemperature
         {
-            get { return new Temperature(schedule1Bytes[1]); }
+            get { return Temperature.Parse(schedule1Bytes[1]); }
         }
 
         public DailySchedule MondaySchedule
@@ -152,6 +157,11 @@ namespace Eco2.Parsing
         public DailySchedule SundaySchedule
         {
             get { return DailySchedule.Parse(schedule3Bytes.Skip(6).Take(6)); }
+        }
+
+        void WriteTemperatureBytesBackToThermostat()
+        {
+            thermostat.Temperature = encryption.Encrypt(temperatureBytes);
         }
     }
 }

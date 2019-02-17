@@ -32,6 +32,10 @@ namespace Eco2
                     RequireNumberOfArguments(2, args);
                     new Show(args[1]).Execute();
                     break;
+                case "set":
+                    RequireNumberOfArguments(4, args);
+                    new SetValue(args[1], args[2], args[3]).Execute();
+                    break;
                 default:
                     QuitWithUsage($"Unknown command: {args[0]}");
                     break;
@@ -63,6 +67,7 @@ namespace Eco2
             Console.WriteLine("forget name - forget about a specific thermostat");
             Console.WriteLine("list - show all of the previously read thermostats");
             Console.WriteLine("show name - output all previously read values from a thermostat");
+            Console.WriteLine("set name attribute value - set the given attribute to the provided value");
 
             Environment.Exit(1);
         }

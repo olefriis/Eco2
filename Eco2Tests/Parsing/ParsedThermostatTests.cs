@@ -42,19 +42,35 @@ namespace Eco2Tests.Parsing
         [TestMethod]
         public void ParsesFrostProtectionTemperature()
         {
-            Assert.AreEqual(6, new ParsedThermostat(thermostat).FrostProtectionTemperature.ValueInDegreesCelcius);
+            Assert.AreEqual(6, new ParsedThermostat(thermostat).FrostProtectionTemperature.InDegreesCelcius);
         }
 
         [TestMethod]
         public void ParsesVacationTemperature()
         {
-            Assert.AreEqual(15, new ParsedThermostat(thermostat).VacationTemperature.ValueInDegreesCelcius);
+            Assert.AreEqual(15, new ParsedThermostat(thermostat).VacationTemperature.InDegreesCelcius);
         }
 
         [TestMethod]
         public void KnowsWhenScheduleModeIsScheduled()
         {
             Assert.AreEqual(ParsedThermostat.ScheduleModes.SCHEDULED, new ParsedThermostat(thermostat).ScheduleMode);
+        }
+
+        [TestMethod]
+        public void ParsesSetPointTemperature()
+        {
+            Assert.AreEqual(23, new ParsedThermostat(thermostat).SetPointTemperature.InDegreesCelcius);
+        }
+
+        [TestMethod]
+        public void CanSetSetPointTemperature()
+        {
+            var parsedThermostat = new ParsedThermostat(thermostat);
+            parsedThermostat.SetPointTemperature = Temperature.FromDegreesCelcius(21.5F);
+
+            parsedThermostat = new ParsedThermostat(thermostat);
+            Assert.AreEqual(21.5, new ParsedThermostat(thermostat).SetPointTemperature.InDegreesCelcius);
         }
     }
 }

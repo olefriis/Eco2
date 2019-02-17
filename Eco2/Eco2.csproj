@@ -44,6 +44,7 @@
     <Compile Include="Commands\Show.cs" />
     <Compile Include="Commands\ListThermostats.cs" />
     <Compile Include="Commands\SetValue.cs" />
+    <Compile Include="Commands\Write.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Commands\" />

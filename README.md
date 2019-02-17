@@ -34,10 +34,11 @@ This is a Mac-only project.
 Download https://visualstudio.microsoft.com/vs/mac/ and open the outermost
 solution.
 
-Go through the [steps to get the Xamarin bindings working](https://docs.microsoft.com/en-us/xamarin/mac/app-fundamentals/console),
-as there doesn't seem to be a properly supported way of doing this.
-
 Then just build the thing.
+
+Just in case there's an issue with referencing the Mac bindings, go through the
+[steps to get the Xamarin bindings working](https://docs.microsoft.com/en-us/xamarin/mac/app-fundamentals/console).
+And file an issue in this project, as it shouldn't be an issue.
 
 Caveats
 ===

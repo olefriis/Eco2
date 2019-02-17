@@ -31,7 +31,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Xamarin.Mac">
-      <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\5.2.1.15\lib\x86_64\full\Xamarin.Mac.dll</HintPath>
+      <HintPath>\Library\Frameworks\Xamarin.Mac.framework\Versions\Current\lib\x86_64\full\Xamarin.Mac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -54,7 +54,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\5.2.1.15\lib\libxammac.dylib">
+    <None Include="\Library\Frameworks\Xamarin.Mac.framework\Versions\Current\lib\libxammac.dylib">
       <Link>libxammac.dylib</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

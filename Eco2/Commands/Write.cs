@@ -174,6 +174,36 @@ namespace Eco2.Commands
             }
 
             Console.Error.WriteLine("Wrote temperature value");
+
+            var pinCodeService = Array.Find(connectedThermostat.Services, s => s.UUID.Uuid == Uuids.PIN_CODE_SERVICE);
+            if (pinCodeService == null)
+            {
+                Console.Error.WriteLine($"Did not find pin code service ({Uuids.PIN_CODE_SERVICE})");
+                Environment.Exit(1);
+            }
+            var settingsCharacteristic = Array.Find(pinCodeService.Characteristics, c => c.UUID.Uuid == Uuids.SETTINGS);
+            if (settingsCharacteristic == null)
+            {
+                Console.Error.WriteLine($"Did not find settings characteristic ({Uuids.SETTINGS})");
+                Environment.Exit(1);
+            }
+
+            connectedThermostat.WroteCharacteristicValue += WroteSettingsValue;
+            NSData data = NSData.FromArray(Conversion.HexStringToByteArray(thermostats.ThermostatWithSerial(serial).Settings));
+            connectedThermostat.WriteValue(data, settingsCharacteristic, CBCharacteristicWriteType.WithResponse);
+        }
+
+        void WroteSettingsValue(object sender, CBCharacteristicEventArgs e)
+        {
+            connectedThermostat.WroteCharacteristicValue -= WroteSettingsValue;
+
+            if (e.Error != null)
+            {
+                Console.Error.WriteLine($"Could not write settings value: {e.Error.Description}");
+                Environment.Exit(1);
+            }
+
+            Console.Error.WriteLine("Wrote settings value");
             central.CancelPeripheralConnection(connectedThermostat);
         }
     }

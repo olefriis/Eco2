@@ -1,4 +1,4 @@
-﻿Danfoss Eco™ 2 Reader
+﻿Danfoss Eco™ 2 Controller
 ===
 Simple command-line tool to do some of the tasks that you can do with your
 Danfoss Eco™ 2 app for iOS or Android.
@@ -26,19 +26,6 @@ for creating the missing piece in the Eco 2 ecosystem - a hub.
 Is this in any way an official project?
 ===
 No. And if you brick your thermostats while using this tool, tough luck.
-
-Building
-===
-This is a Mac-only project.
-
-Download https://visualstudio.microsoft.com/vs/mac/ and open the outermost
-solution.
-
-Then just build the thing.
-
-Just in case there's an issue with referencing the Mac bindings, go through the
-[steps to get the Xamarin bindings working](https://docs.microsoft.com/en-us/xamarin/mac/app-fundamentals/console).
-And file an issue in this project, as it shouldn't be an issue.
 
 Limitations
 ===
@@ -147,11 +134,33 @@ Sunday:
 [...a bit of debug output. Just ignore, unless it ends with a clear sign of failure...]
 ```
 
+You can set and cancel vacation periods like so:
+```
+> mono Eco2/bin/Debug/Eco2.exe set "0;0:04:2F:06:24:DD;eTRV" vacation-period "2019-02-11 14:30" "2019-03-02 9:00"
+> mono Eco2/bin/Debug/Eco2.exe set "0;0:04:2F:06:24:DD;eTRV" cancel-vacation
+```
+
+Remember to do a `write` after setting the properties, or they won't be written
+back to the thermostat.
+
 That's it!
 
 The information fetched from the thermostats are stored in the `.eco2.xml` file
 in your home directory, which means that deleting this file will reset the state
 of the utility.
+
+Building
+===
+This is a Mac-only project.
+
+Download https://visualstudio.microsoft.com/vs/mac/ and open the outermost
+solution.
+
+Then just build the thing.
+
+Just in case there's an issue with referencing the Mac bindings, go through the
+[steps to get the Xamarin bindings working](https://docs.microsoft.com/en-us/xamarin/mac/app-fundamentals/console).
+And file an issue in this project, as it shouldn't be an issue.
 
 Code Structure
 ===

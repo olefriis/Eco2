@@ -72,5 +72,72 @@ namespace Eco2Tests.Parsing
             parsedThermostat = new ParsedThermostat(thermostat);
             Assert.AreEqual(21.5, new ParsedThermostat(thermostat).SetPointTemperature.InDegreesCelcius);
         }
+
+        [TestMethod]
+        public void KnowsWhenVacationDatesAreNotSet()
+        {
+            Assert.IsNull(new ParsedThermostat(thermostat).VacationFrom);
+            Assert.IsNull(new ParsedThermostat(thermostat).VacationTo);
+        }
+
+        [TestMethod]
+        public void CanParseVacationDates()
+        {
+            var decryptedSettings = Decrypt(thermostat.Settings);
+
+            // 2019-02-18 20:30:00 +0100 is 1550518200 in Unix timestamp
+            var fromBytes = BitConverter.GetBytes(1550518200);
+            // 2019-02-25 09:00:00 +0100 is 1551081600 in Unix timestamp
+            var toBytes = BitConverter.GetBytes(1551081600);
+
+            decryptedSettings[6] = fromBytes[3];
+            decryptedSettings[7] = fromBytes[2];
+            decryptedSettings[8] = fromBytes[1];
+            decryptedSettings[9] = fromBytes[0];
+
+            decryptedSettings[10] = toBytes[3];
+            decryptedSettings[11] = toBytes[2];
+            decryptedSettings[12] = toBytes[1];
+            decryptedSettings[13] = toBytes[0];
+
+            thermostat.Settings = Encrypt(decryptedSettings);
+
+            Assert.AreEqual(DateTime.Parse("2019-02-18 20:30:00 +0100"), new ParsedThermostat(thermostat).VacationFrom);
+            Assert.AreEqual(DateTime.Parse("2019-02-25 09:00:00 +0100"), new ParsedThermostat(thermostat).VacationTo);
+        }
+
+        [TestMethod]
+        public void CanSetVacationDates()
+        {
+            var from = DateTime.Parse("2019-02-13 13:30:00 +0100");
+            var to = DateTime.Parse("2019-02-20 18:15:00 +0100");
+
+            var parsedThermostat = new ParsedThermostat(thermostat);
+            parsedThermostat.VacationFrom = from;
+            parsedThermostat.VacationTo = to;
+
+            var anotherParsedThermostat = new ParsedThermostat(thermostat);
+            Assert.AreEqual(from, anotherParsedThermostat.VacationFrom);
+            Assert.AreEqual(to, anotherParsedThermostat.VacationTo);
+        }
+
+        [TestMethod]
+        public void CanRemoveVacationDates()
+        {
+            var parsedThermostat = new ParsedThermostat(thermostat);
+            parsedThermostat.VacationFrom = DateTime.Parse("2019-02-13 13:30:00 +0100");
+            parsedThermostat.VacationTo = DateTime.Parse("2019-02-20 18:15:00 +0100");
+
+            parsedThermostat = new ParsedThermostat(thermostat);
+            parsedThermostat.VacationFrom = null;
+            parsedThermostat.VacationTo = null;
+
+            parsedThermostat = new ParsedThermostat(thermostat);
+            Assert.IsNull(parsedThermostat.VacationFrom);
+            Assert.IsNull(parsedThermostat.VacationTo);
+        }
+
+        byte[] Decrypt(string value) => new Eco2.Encryption.Encryption(thermostat.SecretKey).Decrypt(value);
+        string Encrypt(byte[] value) => new Eco2.Encryption.Encryption(thermostat.SecretKey).Encrypt(value);
     }
 }

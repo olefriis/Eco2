@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AppKit;
 using Eco2.Commands;
 
@@ -37,8 +38,7 @@ namespace Eco2
                     new Show(args[1]).Execute();
                     break;
                 case "set":
-                    RequireNumberOfArguments(4, args);
-                    new SetValue(args[1], args[2], args[3]).Execute();
+                    new SetValue(args[1], args[2], args.Skip(3).ToArray()).Execute();
                     break;
                 default:
                     QuitWithUsage($"Unknown command: {args[0]}");

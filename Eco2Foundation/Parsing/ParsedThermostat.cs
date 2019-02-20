@@ -92,11 +92,21 @@ namespace Eco2.Parsing
         public DateTime? VacationFrom
         {
             get { return Timestamp.Parse(settingsBytes.Skip(6).Take(4)); }
+            set
+            {
+                Timestamp.WriteToByteArray(value, settingsBytes, 6);
+                WriteSettingsBytesBackToThermostat();
+            }
         }
 
         public DateTime? VacationTo
         {
             get { return Timestamp.Parse(settingsBytes.Skip(10).Take(4)); }
+            set
+            {
+                Timestamp.WriteToByteArray(value, settingsBytes, 10);
+                WriteSettingsBytesBackToThermostat();
+            }
         }
 
         public Temperature SetPointTemperature
@@ -162,6 +172,11 @@ namespace Eco2.Parsing
         void WriteTemperatureBytesBackToThermostat()
         {
             thermostat.Temperature = encryption.Encrypt(temperatureBytes);
+        }
+
+        void WriteSettingsBytesBackToThermostat()
+        {
+            thermostat.Settings = encryption.Encrypt(settingsBytes);
         }
     }
 }

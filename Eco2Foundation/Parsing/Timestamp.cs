@@ -23,7 +23,27 @@ namespace Eco2.Parsing
                 secondsAfter1970 += b;
             }
 
-            return new DateTime(1970, 1, 1).AddSeconds(secondsAfter1970).ToLocalTime();
+            return LocalEpoch.AddSeconds(secondsAfter1970);
+        }
+
+        public static void WriteToByteArray(DateTime? dateTime, byte[] array, int offset)
+        {
+            if (dateTime == null)
+            {
+                array[offset + 0] = 0;
+                array[offset + 1] = 0;
+                array[offset + 2] = 0;
+                array[offset + 3] = 0;
+            }
+            else
+            {
+                var secondsSinceEpoch = (int) dateTime.Value.Subtract(LocalEpoch).TotalSeconds;
+                var bytes = BitConverter.GetBytes(secondsSinceEpoch);
+                array[offset + 0] = bytes[3];
+                array[offset + 1] = bytes[2];
+                array[offset + 2] = bytes[1];
+                array[offset + 3] = bytes[0];
+            }
         }
 
         static bool AreAllZeroes(IEnumerable<byte> bytes)
@@ -37,5 +57,7 @@ namespace Eco2.Parsing
             }
             return true;
         }
+
+        static DateTime LocalEpoch => new DateTime(1970, 1, 1).ToLocalTime();
     }
 }

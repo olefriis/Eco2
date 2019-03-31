@@ -16,8 +16,6 @@ namespace Eco2.Bluetooth
         event EventHandler<ReadCharacteristicValueEventArgs> ReadCharacteristicValueEventHandler;
         event EventHandler<WroteCharacteristicValueEventArgs> WroteCharacteristicValueEventHandler;
 
-        void Start();
-        void Stop();
         void StartScanning();
         void ConnectToPeripheralWithName(string name, bool firstConnect);
         void DiscoverCharacteristicsFor(Service service);

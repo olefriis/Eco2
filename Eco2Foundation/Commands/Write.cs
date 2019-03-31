@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Eco2.Bluetooth;
 using Eco2.Models;
 using Eco2.Parsing;
+using System.Threading;
 
 namespace Eco2.Commands
 {
@@ -16,8 +17,8 @@ namespace Eco2.Commands
         Service mainService;
         Characteristic[] batteryServiceCharacteristics;
         Characteristic[] mainServiceCharacteristics;
-        SortedSet<string> characteristicValuesToRead;
         Dictionary<string, byte[]> characteristicValues = new Dictionary<string, byte[]>();
+        Semaphore runningSemaphore = new Semaphore(0, 1);
 
         public Write(string serial, IBluetooth bluetooth)
         {
@@ -42,7 +43,7 @@ namespace Eco2.Commands
 
             bluetooth.ConnectToPeripheralWithName(serial, false);
             bluetooth.StartScanning();
-            bluetooth.Start();
+            runningSemaphore.WaitOne();
 
             Console.Error.WriteLine("Done");
             Environment.Exit(0);
@@ -67,7 +68,7 @@ namespace Eco2.Commands
         void DisconnectedFromPeripheralEventHandler(object sender, DisconnectedFromPeripheralEventArgs e)
         {
             Console.Error.WriteLine("Disconnected");
-            bluetooth.Stop();
+            runningSemaphore.Release(1);
         }
 
         void DiscoveredMainServiceCharacteristics(object sender, DiscoveredCharacteristicsEventArgs a)
@@ -142,7 +143,7 @@ namespace Eco2.Commands
             bluetooth.WroteCharacteristicValueEventHandler -= WroteSettingsValue;
 
             Console.Error.WriteLine("Wrote settings value");
-            bluetooth.Stop();
+            bluetooth.Disconnect();
         }
 
         Service FindService(string uuid)

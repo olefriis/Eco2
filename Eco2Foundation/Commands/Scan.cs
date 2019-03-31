@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eco2.Bluetooth;
+using System.Threading;
 
 namespace Eco2.Commands
 {
@@ -28,7 +29,7 @@ namespace Eco2.Commands
         {
             bluetooth.DiscoveredPeripheralEventHandler += DiscoveredPeripheral;
             bluetooth.StartScanning();
-            bluetooth.Start();
+            Thread.Sleep(120 * 1000);
         }
 
         void DiscoveredPeripheral(object sender, DiscoveredPeripheralEventArgs e)

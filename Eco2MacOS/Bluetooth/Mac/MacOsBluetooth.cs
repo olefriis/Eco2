@@ -17,7 +17,6 @@ namespace Eco2.Bluetooth.Mac
         List<CBPeripheral> discoveredPeripherals = new List<CBPeripheral>();
         CBPeripheral connectedCbPeripheral;
         Peripheral connectedPeripheral;
-        bool running;
 
         public event EventHandler<BluetoothFailureEventArgs> FailureEventHandler;
         public event EventHandler<DiscoveredPeripheralEventArgs> DiscoveredPeripheralEventHandler;
@@ -26,23 +25,6 @@ namespace Eco2.Bluetooth.Mac
         public event EventHandler<DiscoveredCharacteristicsEventArgs> DiscoveredCharacteristicsEventHandler;
         public event EventHandler<ReadCharacteristicValueEventArgs> ReadCharacteristicValueEventHandler;
         public event EventHandler<WroteCharacteristicValueEventArgs> WroteCharacteristicValueEventHandler;
-
-        public void Start()
-        {
-            Console.Error.WriteLine("Starting run loop");
-            running = true;
-            var runLoop = NSRunLoop.Current;
-            while (running)
-            {
-                runLoop.RunUntil(NSDate.FromTimeIntervalSinceNow(1));
-            }
-            Console.Error.WriteLine("Run loop done");
-        }
-
-        public void Stop()
-        {
-            running = false;
-        }
 
         public void StartScanning()
         {

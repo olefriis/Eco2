@@ -11,5 +11,9 @@
     <Folder Include="Encryption\" />
     <Folder Include="Parsing\" />
     <Folder Include="Models\" />
+    <Folder Include="Commands\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Eco2BluetoothApi\Eco2BluetoothApi.csproj" />
   </ItemGroup>
 </Project>

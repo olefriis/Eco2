@@ -45,7 +45,7 @@ Usage
 Just run the tool without any arguments:
 
 ```
-> mono Eco2/bin/Debug/Eco2.exe
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe
 Too few arguments
 
 scan - scan nearby devices for 120 seconds (Ctrl-C to stop)
@@ -79,7 +79,7 @@ An example, in which we list the nearby thermostats, connect to and read from
 one of them, and set the set-point temperature a little higher than it was
 before:
 ```
-> mono Eco2/bin/Debug/Eco2.exe scan
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe scan
 Scanning for thermostats for 120 seconds
 0;0:04:2F:06:25:A6;eTRV
 0;0:04:2F:06:25:A5;eTRV
@@ -88,9 +88,9 @@ Scanning for thermostats for 120 seconds
 0;0:04:2F:06:24:D1;eTRV
 0;0:04:2F:C0:F2:58;eTRV
 0;0:04:2F:06:24:DD;eTRV
-> mono Eco2/bin/Debug/Eco2.exe read "0;0:04:2F:06:24:DD;eTRV"
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe read "0;0:04:2F:06:24:DD;eTRV"
 [...lots of debug output. Just ignore, unless it ends with a clear sign of failure...]
-> mono Eco2/bin/Debug/Eco2.exe show "0;0:04:2F:06:24:DD;eTRV"
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe show "0;0:04:2F:06:24:DD;eTRV"
 Device name: Tilbygning
 Battery level: 78%
 
@@ -129,15 +129,15 @@ Saturday:
 
 Sunday:
 0:00 Home
-> mono Eco2/bin/Debug/Eco2.exe set "0;0:04:2F:06:24:DD;eTRV" set-point-temperature 23.5
-> mono Eco2/bin/Debug/Eco2.exe write "0;0:04:2F:06:24:DD;eTRV"
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe set "0;0:04:2F:06:24:DD;eTRV" set-point-temperature 23.5
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe write "0;0:04:2F:06:24:DD;eTRV"
 [...a bit of debug output. Just ignore, unless it ends with a clear sign of failure...]
 ```
 
 You can set and cancel vacation periods like so:
 ```
-> mono Eco2/bin/Debug/Eco2.exe set "0;0:04:2F:06:24:DD;eTRV" vacation-period "2019-02-11 14:30" "2019-03-02 9:00"
-> mono Eco2/bin/Debug/Eco2.exe set "0;0:04:2F:06:24:DD;eTRV" cancel-vacation
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe set "0;0:04:2F:06:24:DD;eTRV" vacation-period "2019-02-11 14:30" "2019-03-02 9:00"
+> mono Eco2MacOS/bin/Debug/Eco2MacOS.exe set "0;0:04:2F:06:24:DD;eTRV" cancel-vacation
 ```
 
 Remember to do a `write` after setting the properties, or they won't be written
@@ -151,7 +151,7 @@ of the utility.
 
 Building
 ===
-This is a Mac-only project.
+This is a Mac-only project for now.
 
 Download https://visualstudio.microsoft.com/vs/mac/ and open the outermost
 solution.
@@ -164,10 +164,12 @@ And file an issue in this project, as it shouldn't be an issue.
 
 Code Structure
 ===
-It may seem a little overkill with 3 projects in the solution instead of just
-2: the code and some tests. However, I don't know how to add unit tests to a
-".NET Framework" project, so I had to pull out some classes to a ".NET Standard"
-project and then test those.
+In order to isolate MacOS-specific code and dependencies, the console
+application itself is isolated in the `Eco2MacOS` project. This implements the
+Bluetooth API defined in the `Eco2BluetoothApi` project and invokes the
+platform-agnostic code in the `Eco2Foundation` project (which also has a
+reference to the `Eco2BluetoothApi` project as it is invoking methods on the
+Bluetooth API).
 
 Otherwise it's a pretty small repository, so you'll probably get the gist of it.
 At least I've tried hard to make readable code.

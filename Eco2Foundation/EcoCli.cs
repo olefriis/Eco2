@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Linq;
-using AppKit;
+using Eco2.Bluetooth;
 using Eco2.Commands;
 
 namespace Eco2
 {
-    class MainClass
+    public class EcoCli
     {
-        public static void Main(string[] args)
+        public static void Main(string[] args, IBluetooth bluetooth)
         {
             RequireAtLeastOneArgument(args);
-            NSApplication.Init();
             switch (args[0])
             {
                 case "scan":
                     RequireNumberOfArguments(1, args);
-                    new Scan().Execute();
+                    new Scan(bluetooth).Execute();
                     break;
                 case "read":
                     RequireNumberOfArguments(2, args);
-                    new Read(args[1]).Execute();
+                    new Read(args[1], bluetooth).Execute();
                     break;
                 case "write":
                     RequireNumberOfArguments(2, args);
-                    new Write(args[1]).Execute();
+                    new Write(args[1], bluetooth).Execute();
                     break;
                 case "forget":
                     RequireNumberOfArguments(2, args);

@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{26EAE3B7-33D9-4046-8980-D0AE7F1D3FC2}</ProjectGuid>
+    <ProjectGuid>{4A920A6B-38D2-4582-B1B8-3963253CFA45}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Eco2</RootNamespace>
-    <AssemblyName>Eco2</AssemblyName>
+    <RootNamespace>Eco2MacOS</RootNamespace>
+    <AssemblyName>Eco2MacOS</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -37,29 +37,27 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Uuids.cs" />
-    <Compile Include="Commands\Read.cs" />
-    <Compile Include="Commands\Scan.cs" />
-    <Compile Include="Commands\Forget.cs" />
-    <Compile Include="Commands\Show.cs" />
-    <Compile Include="Commands\ListThermostats.cs" />
-    <Compile Include="Commands\SetValue.cs" />
-    <Compile Include="Commands\Write.cs" />
+    <Compile Include="Bluetooth\Mac\MacOsBluetooth.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Commands\" />
+    <Folder Include="Bluetooth\" />
+    <Folder Include="Bluetooth\Mac\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\Current\lib\libxammac.dylib">
+      <Link>libxammac.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Eco2BluetoothApi\Eco2BluetoothApi.csproj">
+      <Project>{6716A816-BE2B-417A-8355-D10C502204DD}</Project>
+      <Name>Eco2BluetoothApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Eco2Foundation\Eco2Foundation.csproj">
       <Project>{6C14B3D1-E357-483E-BD37-FA06E69620AE}</Project>
       <Name>Eco2Foundation</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="\Library\Frameworks\Xamarin.Mac.framework\Versions\Current\lib\libxammac.dylib">
-      <Link>libxammac.dylib</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

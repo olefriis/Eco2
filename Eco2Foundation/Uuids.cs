@@ -5,7 +5,7 @@ namespace Eco2
 {
     public class Uuids
     {
-        public const string PIN_CODE_SERVICE = "10020000-2749-0001-0000-00805F9B042F";
+        public const string MAIN_SERVICE = "10020000-2749-0001-0000-00805F9B042F";
         public const string PIN_CODE_CHARACTERISTIC = "10020001-2749-0001-0000-00805F9B042F";
 
         public const string BATTERY_SERVICE = "180F";

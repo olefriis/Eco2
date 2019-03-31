@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{4A920A6B-38D2-4582-B1B8-3963253CFA45}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Eco2MacOS</RootNamespace>
+    <RootNamespace>Eco2</RootNamespace>
     <AssemblyName>Eco2MacOS</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>

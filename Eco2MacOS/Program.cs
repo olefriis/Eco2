@@ -1,11 +1,9 @@
 ﻿using AppKit;
 using Eco2.Bluetooth.Mac;
-using Eco2;
-using System;
 using System.Threading;
 using Foundation;
 
-namespace Eco2MacOS
+namespace Eco2
 {
     class MainClass
     {

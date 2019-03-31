@@ -1,9 +1,8 @@
 ﻿using System;
 using Eco2.Models;
-using Eco2.Parsing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Eco2Tests.Parsing
+namespace Eco2.Parsing
 {
     [TestClass]
     public class ParsedThermostatTests
@@ -137,7 +136,7 @@ namespace Eco2Tests.Parsing
             Assert.IsNull(parsedThermostat.VacationTo);
         }
 
-        byte[] Decrypt(string value) => new Eco2.Encryption.Encryption(thermostat.SecretKey).Decrypt(value);
-        string Encrypt(byte[] value) => new Eco2.Encryption.Encryption(thermostat.SecretKey).Encrypt(value);
+        byte[] Decrypt(string value) => new Encryption.Encryption(thermostat.SecretKey).Decrypt(value);
+        string Encrypt(byte[] value) => new Encryption.Encryption(thermostat.SecretKey).Encrypt(value);
     }
 }

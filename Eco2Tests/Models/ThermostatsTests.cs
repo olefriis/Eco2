@@ -1,8 +1,7 @@
 using System.IO;
-using Eco2.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Eco2Tests.Models
+namespace Eco2.Models
 {
     [TestClass]
     public class ThermostatsTests

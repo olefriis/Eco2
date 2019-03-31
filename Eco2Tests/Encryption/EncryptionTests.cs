@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Text;
-using Eco2.Encryption;
 using Eco2.Parsing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Eco2Tests.Encryption
+namespace Eco2.Encryption
 {
     [TestClass]
     public class EncryptionTests
@@ -19,7 +18,7 @@ namespace Eco2Tests.Encryption
             var bytes = Encoding.ASCII.GetBytes("Tilbygning");
             Array.Resize(ref bytes, 16); // We've got 16-byte blocks
 
-            var decryptedName = new Eco2.Encryption.Encryption(key).Decrypt(encryptedName);
+            var decryptedName = new Encryption(key).Decrypt(encryptedName);
 
             Assert.AreEqual(Conversion.ByteArrayToString(bytes), Conversion.ByteArrayToString(decryptedName));
         }
@@ -27,7 +26,7 @@ namespace Eco2Tests.Encryption
         [TestMethod]
         public void CanEncode()
         {
-            var xxTea = new Eco2.Encryption.Encryption(key);
+            var xxTea = new Encryption(key);
 
             var bytes = Encoding.ASCII.GetBytes("Tilbygning");
             Array.Resize(ref bytes, 16); // We've got 16-byte blocks

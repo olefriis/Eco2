@@ -1,5 +1,4 @@
-﻿using System;
-namespace Eco2.Bluetooth
+﻿namespace Eco2.Bluetooth
 {
     public class Characteristic
     {

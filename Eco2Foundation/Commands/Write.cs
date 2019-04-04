@@ -1,31 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using Eco2.Bluetooth;
 using Eco2.Models;
 using Eco2.Parsing;
-using System.Threading;
 
 namespace Eco2.Commands
 {
     public class Write
     {
         readonly string serial;
-        readonly IBluetooth bluetooth;
         readonly Thermostats thermostats;
-        Peripheral connectedThermostat;
-        Service batteryService;
-        Service mainService;
-        Characteristic[] batteryServiceCharacteristics;
-        Characteristic[] mainServiceCharacteristics;
-        Dictionary<string, byte[]> characteristicValues = new Dictionary<string, byte[]>();
-        Semaphore runningSemaphore = new Semaphore(0, 1);
+        readonly PeripheralAccessor accessor;
 
         public Write(string serial, IBluetooth bluetooth)
         {
             this.serial = serial;
-            this.bluetooth = bluetooth;
-            this.thermostats = Thermostats.Read();
-            this.serial = serial;
+            thermostats = Thermostats.Read();
+            accessor = new PeripheralAccessor(bluetooth);
 
             if (!thermostats.HasSecretFor(serial))
             {
@@ -36,119 +27,67 @@ namespace Eco2.Commands
 
         public void Execute()
         {
-            bluetooth.FailureEventHandler += Failure;
-            bluetooth.ConnectedToPeripheralEventHandler += ConnectedToPeripheral;
-            bluetooth.DiscoveredCharacteristicsEventHandler += DiscoveredMainServiceCharacteristics;
-            bluetooth.DisconnectedFromPeripheralEventHandler += DisconnectedFromPeripheralEventHandler;
-
-            bluetooth.ConnectToPeripheralWithName(serial, false);
-            bluetooth.StartScanning();
-            runningSemaphore.WaitOne();
+            Connect(serial).Wait();
 
             Console.Error.WriteLine("Done");
             Environment.Exit(0);
         }
 
-        void Failure(object sender, BluetoothFailureEventArgs e)
+        async Task Connect(string name)
         {
-            Console.Error.WriteLine($"Bluetooth error: {e}");
-            Environment.Exit(1);
-        }
+            var connectedThermostat = await accessor.ConnectToPeripheralWithName(name, false);
 
-        void ConnectedToPeripheral(object sender, ConnectedToPeripheralEventArgs a)
-        {
-            connectedThermostat = a.Peripheral;
+            var mainService = FindService(connectedThermostat, Uuids.MAIN_SERVICE);
+            var batteryService = FindService(connectedThermostat, Uuids.BATTERY_SERVICE);
 
-            mainService = FindService(Uuids.MAIN_SERVICE);
-            batteryService = FindService(Uuids.BATTERY_SERVICE);
+            var mainServiceCharacteristics = await accessor.DiscoverCharacteristicsFor(mainService);
 
-            bluetooth.DiscoverCharacteristicsFor(mainService);
-        }
+            var secretValueCharacteristic = Array.Find(mainServiceCharacteristics, c => c.Uuid == Uuids.SECRET_KEY);
+            if (secretValueCharacteristic == null && !thermostats.HasSecretFor(serial))
+            {
+                Console.Error.WriteLine("You need to push the timer button on the thermostat");
+                Environment.Exit(1);
+            }
 
-        void DisconnectedFromPeripheralEventHandler(object sender, DisconnectedFromPeripheralEventArgs e)
-        {
-            Console.Error.WriteLine("Disconnected");
-            runningSemaphore.Release(1);
-        }
-
-        void DiscoveredMainServiceCharacteristics(object sender, DiscoveredCharacteristicsEventArgs a)
-        {
-            bluetooth.DiscoveredCharacteristicsEventHandler -= DiscoveredMainServiceCharacteristics;
-
-            mainServiceCharacteristics = a.Characteristics;
-            var pinCodeCharacteristic = Array.Find(mainServiceCharacteristics, characteristic => characteristic.Uuid == Uuids.PIN_CODE_CHARACTERISTIC);
+            var pinCodeCharacteristic = CharacteristicWithUuid(mainServiceCharacteristics, Uuids.PIN_CODE_CHARACTERISTIC);
             if (pinCodeCharacteristic == null)
             {
                 Console.Error.WriteLine($"Did not find pin code characteristic ({Uuids.PIN_CODE_CHARACTERISTIC})");
                 Environment.Exit(1);
             }
 
-            bluetooth.WroteCharacteristicValueEventHandler += WrotePinCodeCharacteristicValue;
             Console.Error.WriteLine("Writing pin code");
             byte[] zeroBytes = { 0, 0, 0, 0 };
-            bluetooth.WriteCharacteristicsValue(a.Service, pinCodeCharacteristic, zeroBytes);
+            await accessor.WriteCharacteristicValue(mainService, pinCodeCharacteristic, zeroBytes);
+            Console.Error.WriteLine("Wrote pin code");
+
+            var thermostat = thermostats.ThermostatWithSerial(serial);
+            await WriteCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.TEMPERATURE, thermostat.Temperature);
+            await WriteCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.SETTINGS, thermostat.Settings);
+            await accessor.Disconnect();
         }
 
-        void WrotePinCodeCharacteristicValue(object sender, WroteCharacteristicValueEventArgs e)
+        async Task<Characteristic> WriteCharacteristicWithUuid(Service service, Characteristic[] characteristics, string uuid, string value)
         {
-            bluetooth.WroteCharacteristicValueEventHandler -= WrotePinCodeCharacteristicValue;
-
-            bluetooth.DiscoveredCharacteristicsEventHandler += DiscoveredCharacteristicsForBatteryService;
-            bluetooth.DiscoverCharacteristicsFor(batteryService);
+            var characteristic = CharacteristicWithUuid(characteristics, uuid);
+            return await WriteCharacteristic(service, characteristic, value);
         }
 
-        void DiscoveredCharacteristicsForBatteryService(object sender, DiscoveredCharacteristicsEventArgs e)
+        async Task<Characteristic> WriteCharacteristic(Service service, Characteristic characteristic, string value)
         {
-            bluetooth.DiscoveredCharacteristicsEventHandler -= DiscoveredCharacteristicsForBatteryService;
+            Console.Error.WriteLine($"Writing characteristic {characteristic.Uuid}");
 
-            batteryServiceCharacteristics = e.Characteristics;
-
-            var temperatureCharacteristic = Array.Find(mainServiceCharacteristics, c => c.Uuid == Uuids.TEMPERATURE);
-            if (temperatureCharacteristic == null)
-            {
-                Console.Error.WriteLine($"Did not find temperature characteristic ({Uuids.TEMPERATURE})");
-                Environment.Exit(1);
-            }
-
-            bluetooth.WroteCharacteristicValueEventHandler += WroteTemperatureValue;
-            var data = Conversion.HexStringToByteArray(thermostats.ThermostatWithSerial(serial).Temperature);
-            bluetooth.WriteCharacteristicsValue(mainService, temperatureCharacteristic, data);
-        }
-        /*
-            characteristicValuesToRead = new SortedSet<string>();
-            ReadRelevantCharacteristicValuesFor(mainService, mainServiceCharacteristics);
-            ReadRelevantCharacteristicValuesFor(batteryService, batteryServiceCharacteristics);
-        }*/
-
-        void WroteTemperatureValue(object sender, WroteCharacteristicValueEventArgs e)
-        {
-            bluetooth.WroteCharacteristicValueEventHandler -= WroteTemperatureValue;
-
-            Console.Error.WriteLine("Wrote temperature value");
-
-            var settingsCharacteristic = Array.Find(mainServiceCharacteristics, c => c.Uuid == Uuids.SETTINGS);
-            if (settingsCharacteristic == null)
-            {
-                Console.Error.WriteLine($"Did not find settings characteristic ({Uuids.SETTINGS})");
-                Environment.Exit(1);
-            }
-
-            bluetooth.WroteCharacteristicValueEventHandler += WroteSettingsValue;
-            var data = Conversion.HexStringToByteArray(thermostats.ThermostatWithSerial(serial).Settings);
-            bluetooth.WriteCharacteristicsValue(mainService, settingsCharacteristic, data);
+            return await accessor.WriteCharacteristicValue(service, characteristic, Conversion.HexStringToByteArray(value));
         }
 
-        void WroteSettingsValue(object sender, WroteCharacteristicValueEventArgs e)
+        Characteristic CharacteristicWithUuid(Characteristic[] characteristics, string uuid)
         {
-            bluetooth.WroteCharacteristicValueEventHandler -= WroteSettingsValue;
-
-            Console.Error.WriteLine("Wrote settings value");
-            bluetooth.Disconnect();
+            return Array.Find(characteristics, c => c.Uuid == uuid);
         }
 
-        Service FindService(string uuid)
+        Service FindService(Peripheral thermostat, string uuid)
         {
-            var service = Array.Find(connectedThermostat.Services, s => s.Uuid == uuid);
+            var service = Array.Find(thermostat.Services, s => s.Uuid == uuid);
             if (service == null)
             {
                 Console.Error.WriteLine($"Did not find service with UUID {uuid}");

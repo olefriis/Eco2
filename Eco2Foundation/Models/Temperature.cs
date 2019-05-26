@@ -1,7 +1,10 @@
-﻿namespace Eco2.Parsing
+﻿namespace Eco2.Models
 {
     public class Temperature
     {
+        // Gotta be read-write for XML serialization to work
+        public byte Value;
+
         public static Temperature Parse(byte b)
         {
             return new Temperature(b);
@@ -17,12 +20,15 @@
             this.Value = value;
         }
 
+        private Temperature()
+        {
+            // Constructor required for XML serialization to work
+        }
+
         public float InDegreesCelcius
         {
             get { return Value / 2F; }
         }
-
-        public byte Value { get; }
 
         public override string ToString() => (Value / 2.0) + "°C";
     }

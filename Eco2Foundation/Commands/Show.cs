@@ -50,6 +50,27 @@ namespace Eco2.Commands
             Console.WriteLine($"Saturday:\n{parsed.SaturdaySchedule}");
             Console.WriteLine("");
             Console.WriteLine($"Sunday:\n{parsed.SundaySchedule}");
+
+            if (thermostat.HasUpdatedAttributes)
+            {
+                Console.WriteLine("");
+                Console.WriteLine("Attributes to be updated:");
+                if (thermostat.UpdatedSetPointTemperature != null)
+                {
+                    Console.WriteLine($"Set-point temperature: {thermostat.UpdatedSetPointTemperature}");
+                }
+                if (thermostat.HasUpdatedVacationPeriod)
+                {
+                    if (thermostat.UpdatedVacationPeriod != null)
+                    {
+                        Console.WriteLine($"Vacation: {thermostat.UpdatedVacationPeriod.From} - {thermostat.UpdatedVacationPeriod.To}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Clear upcoming vacation period");
+                    }
+                }
+            }
         }
     }
 }

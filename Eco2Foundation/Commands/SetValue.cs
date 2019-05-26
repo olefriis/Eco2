@@ -34,13 +34,13 @@ namespace Eco2.Commands
             switch (attributeName)
             {
                 case SET_POINT_TEMPERATURE:
-                    SetSetPointTemperature(parsedThermostat);
+                    SetSetPointTemperature(thermostat);
                     break;
                 case VACATION_PERIOD:
-                    SetVacationPeriod(parsedThermostat);
+                    SetVacationPeriod(thermostat);
                     break;
                 case CANCEL_VACATION:
-                    CancelVacation(parsedThermostat);
+                    CancelVacation(thermostat);
                     break;
                 default:
                     Console.Error.WriteLine($"Only setting {SET_POINT_TEMPERATURE}, {VACATION_PERIOD}, and {CANCEL_VACATION} supported for now");
@@ -51,7 +51,7 @@ namespace Eco2.Commands
             thermostats.Write();
         }
 
-        public void SetSetPointTemperature(ParsedThermostat thermostat)
+        public void SetSetPointTemperature(Thermostat thermostat)
         {
             if (attributeValues.Length != 1)
             {
@@ -66,10 +66,10 @@ namespace Eco2.Commands
                 Environment.Exit(1);
             }
 
-            thermostat.SetPointTemperature = Temperature.FromDegreesCelcius(value);
+            thermostat.UpdatedSetPointTemperature = Temperature.FromDegreesCelcius(value);
         }
 
-        public void SetVacationPeriod(ParsedThermostat thermostat)
+        public void SetVacationPeriod(Thermostat thermostat)
         {
             if (attributeValues.Length != 2)
             {
@@ -79,11 +79,10 @@ namespace Eco2.Commands
             var from = ParseDate(attributeValues[0]);
             var to = ParseDate(attributeValues[1]);
 
-            thermostat.VacationFrom = from;
-            thermostat.VacationTo = to;
+            thermostat.UpdateVacation(from, to);
         }
 
-        public void CancelVacation(ParsedThermostat thermostat)
+        public void CancelVacation(Thermostat thermostat)
         {
             if (attributeValues.Length != 0)
             {
@@ -91,8 +90,7 @@ namespace Eco2.Commands
                 Environment.Exit(1);
             }
 
-            thermostat.VacationFrom = null;
-            thermostat.VacationTo = null;
+            thermostat.CancelVacation();
         }
 
         DateTime ParseDate(string date)

@@ -61,10 +61,40 @@ namespace Eco2.Commands
             await accessor.WriteCharacteristicValue(mainService, pinCodeCharacteristic, zeroBytes);
             Console.Error.WriteLine("Wrote pin code");
 
+            var batteryServiceCharacteristics = await accessor.DiscoverCharacteristicsFor(batteryService);
+            Console.Error.WriteLine("Discovered battery service characteristics");
+
             var thermostat = thermostats.ThermostatWithSerial(serial);
+            thermostat.BatteryLevel = await ReadCharacteristicWithUuid(batteryService, batteryServiceCharacteristics, Uuids.BATTERY_LEVEL);
+            thermostat.Name = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.DEVICE_NAME);
+            thermostat.Temperature = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.TEMPERATURE);
+            thermostat.Settings = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.SETTINGS);
+            thermostat.Schedule1 = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.SCHEDULE_1);
+            thermostat.Schedule2 = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.SCHEDULE_2);
+            thermostat.Schedule3 = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.SCHEDULE_3);
+
+            var parsedThermostat = new ParsedThermostat(thermostat);
+            parsedThermostat.ApplyUpdates();
+
             await WriteCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.TEMPERATURE, thermostat.Temperature);
             await WriteCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.SETTINGS, thermostat.Settings);
+
+            thermostats.Write();
+
             await accessor.Disconnect();
+        }
+
+        async Task<string> ReadCharacteristicWithUuid(Service service, Characteristic[] characteristics, string uuid)
+        {
+            var characteristic = CharacteristicWithUuid(characteristics, uuid);
+            return await ReadCharacteristic(service, characteristic);
+        }
+
+        async Task<string> ReadCharacteristic(Service service, Characteristic characteristic)
+        {
+            Console.Error.WriteLine($"Reading characteristic {characteristic.Uuid}");
+
+            return BitConverter.ToString(await accessor.ReadCharacteristicValue(service, characteristic));
         }
 
         async Task<Characteristic> WriteCharacteristicWithUuid(Service service, Characteristic[] characteristics, string uuid, string value)

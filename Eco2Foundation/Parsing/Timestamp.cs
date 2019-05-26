@@ -26,23 +26,23 @@ namespace Eco2.Parsing
             return LocalEpoch.AddSeconds(secondsAfter1970);
         }
 
-        public static void WriteToByteArray(DateTime? dateTime, byte[] array, int offset)
+        public static void Write(DateTime dateTime, byte[] array, int offset)
         {
-            if (dateTime == null)
+            var secondsSinceEpoch = (int) dateTime.Subtract(LocalEpoch).TotalSeconds;
+            var bytes = BitConverter.GetBytes(secondsSinceEpoch).Reverse().ToArray();
+            WriteToByteArray(bytes, array, offset);
+        }
+
+        public static void Clear(byte[] array, int offset)
+        {
+            WriteToByteArray(new byte[] { 0, 0, 0, 0 }, array, offset);
+        }
+
+        static void WriteToByteArray(byte[] src, byte[] dest, int offset)
+        {
+            for (int i=0; i<src.Length; i++)
             {
-                array[offset + 0] = 0;
-                array[offset + 1] = 0;
-                array[offset + 2] = 0;
-                array[offset + 3] = 0;
-            }
-            else
-            {
-                var secondsSinceEpoch = (int) dateTime.Value.Subtract(LocalEpoch).TotalSeconds;
-                var bytes = BitConverter.GetBytes(secondsSinceEpoch);
-                array[offset + 0] = bytes[3];
-                array[offset + 1] = bytes[2];
-                array[offset + 2] = bytes[1];
-                array[offset + 3] = bytes[0];
+                dest[offset + i] = src[i];
             }
         }
 

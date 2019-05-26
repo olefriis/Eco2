@@ -92,31 +92,16 @@ namespace Eco2.Parsing
         public DateTime? VacationFrom
         {
             get { return Timestamp.Parse(settingsBytes.Skip(6).Take(4)); }
-            set
-            {
-                Timestamp.WriteToByteArray(value, settingsBytes, 6);
-                WriteSettingsBytesBackToThermostat();
-            }
         }
 
         public DateTime? VacationTo
         {
             get { return Timestamp.Parse(settingsBytes.Skip(10).Take(4)); }
-            set
-            {
-                Timestamp.WriteToByteArray(value, settingsBytes, 10);
-                WriteSettingsBytesBackToThermostat();
-            }
         }
 
         public Temperature SetPointTemperature
         {
             get { return Temperature.Parse(temperatureBytes[0]); }
-            set
-            {
-                temperatureBytes[0] = value.Value;
-                WriteTemperatureBytesBackToThermostat();
-            }
         }
 
         public Temperature RoomTemperature
@@ -167,6 +152,35 @@ namespace Eco2.Parsing
         public DailySchedule SundaySchedule
         {
             get { return DailySchedule.Parse(schedule3Bytes.Skip(6).Take(6)); }
+        }
+
+        public void ApplyUpdates()
+        {
+            if (thermostat.UpdatedSetPointTemperature != null)
+            {
+                temperatureBytes[0] = thermostat.UpdatedSetPointTemperature.Value;
+                WriteTemperatureBytesBackToThermostat();
+
+                thermostat.UpdatedSetPointTemperature = null;
+            }
+
+            if (thermostat.HasUpdatedVacationPeriod)
+            {
+                if (thermostat.UpdatedVacationPeriod != null)
+                {
+                    Timestamp.Write(thermostat.UpdatedVacationPeriod.From, settingsBytes, 6);
+                    Timestamp.Write(thermostat.UpdatedVacationPeriod.To, settingsBytes, 10);
+                }
+                else
+                {
+                    Timestamp.Clear(settingsBytes, 6);
+                    Timestamp.Clear(settingsBytes, 10);
+                }
+                WriteSettingsBytesBackToThermostat();
+
+                thermostat.HasUpdatedVacationPeriod = false;
+                thermostat.UpdatedVacationPeriod = null;
+            }
         }
 
         void WriteTemperatureBytesBackToThermostat()

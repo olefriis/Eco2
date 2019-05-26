@@ -1,4 +1,6 @@
-﻿namespace Eco2.Models
+﻿using System;
+
+namespace Eco2.Models
 {
     public class Thermostat
     {
@@ -13,5 +15,27 @@
         public string Schedule1;
         public string Schedule2;
         public string Schedule3;
+
+        // Values that we want to push back to the thermostat
+        public Temperature UpdatedSetPointTemperature;
+        public bool HasUpdatedVacationPeriod;
+        public Period UpdatedVacationPeriod;
+
+        public bool HasUpdatedAttributes
+        {
+            get { return UpdatedSetPointTemperature != null || HasUpdatedVacationPeriod; }
+        }
+
+        public void UpdateVacation(DateTime from, DateTime to)
+        {
+            UpdatedVacationPeriod = new Period(from, to);
+            HasUpdatedVacationPeriod = true;
+        }
+
+        public void CancelVacation()
+        {
+            UpdatedVacationPeriod = null;
+            HasUpdatedVacationPeriod = true;
+        }
     }
 }

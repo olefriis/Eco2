@@ -57,8 +57,6 @@ namespace Eco2.Commands
             var batteryServiceCharacteristics = await accessor.DiscoverCharacteristicsFor(batteryService);
             Console.Error.WriteLine("Discovered battery service characteristics");
 
-            var batteryLevelCharacteristic = CharacteristicWithUuid(batteryServiceCharacteristics, Uuids.BATTERY_LEVEL);
-
             var thermostat = thermostats.ThermostatWithSerial(serial);
             if (secretValueCharacteristic != null)
             {

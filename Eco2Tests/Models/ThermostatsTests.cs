@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -47,11 +48,16 @@ namespace Eco2.Models
         [TestMethod]
         public void CanSaveToFile()
         {
+            var from = DateTime.Now;
+            var to = from.AddDays(2);
             var thermostat1 = new Thermostat
             {
                 Name = "Thermostat1",
                 SecretKey = "ABC",
-                Temperature = "encoded-temperature-1"
+                Temperature = "encoded-temperature-1",
+                UpdatedSetPointTemperature = Temperature.FromDegreesCelcius(22),
+                HasUpdatedVacationPeriod = true,
+                UpdatedVacationPeriod = new Period(from, to)
             };
 
             var thermostat2 = new Thermostat
@@ -73,6 +79,10 @@ namespace Eco2.Models
             Assert.AreEqual("Thermostat1", firstReadThermostat.Name);
             Assert.AreEqual("ABC", firstReadThermostat.SecretKey);
             Assert.AreEqual("encoded-temperature-1", firstReadThermostat.Temperature);
+            Assert.AreEqual(22, firstReadThermostat.UpdatedSetPointTemperature.InDegreesCelcius);
+            Assert.IsTrue(firstReadThermostat.HasUpdatedVacationPeriod);
+            Assert.AreEqual(from, firstReadThermostat.UpdatedVacationPeriod.From);
+            Assert.AreEqual(to, firstReadThermostat.UpdatedVacationPeriod.To);
         }
 
         [TestMethod]

@@ -63,12 +63,12 @@ namespace Eco2.Parsing
         }
 
         [TestMethod]
-        public void CanSetSetPointTemperature()
+        public void CanUpdateSetPointTemperature()
         {
+            thermostat.UpdatedSetPointTemperature = Temperature.FromDegreesCelcius(21.5F);
             var parsedThermostat = new ParsedThermostat(thermostat);
-            parsedThermostat.SetPointTemperature = Temperature.FromDegreesCelcius(21.5F);
+            parsedThermostat.ApplyUpdates();
 
-            parsedThermostat = new ParsedThermostat(thermostat);
             Assert.AreEqual(21.5, new ParsedThermostat(thermostat).SetPointTemperature.InDegreesCelcius);
         }
 
@@ -106,32 +106,29 @@ namespace Eco2.Parsing
         }
 
         [TestMethod]
-        public void CanSetVacationDates()
+        public void CanUpdateVacationDates()
         {
             var from = DateTime.Parse("2019-02-13 13:30:00 +0100");
             var to = DateTime.Parse("2019-02-20 18:15:00 +0100");
 
-            var parsedThermostat = new ParsedThermostat(thermostat);
-            parsedThermostat.VacationFrom = from;
-            parsedThermostat.VacationTo = to;
+            thermostat.UpdateVacation(from, to);
+            new ParsedThermostat(thermostat).ApplyUpdates();
 
-            var anotherParsedThermostat = new ParsedThermostat(thermostat);
-            Assert.AreEqual(from, anotherParsedThermostat.VacationFrom);
-            Assert.AreEqual(to, anotherParsedThermostat.VacationTo);
+            var parsedThermostat = new ParsedThermostat(thermostat);
+            Assert.AreEqual(from, parsedThermostat.VacationFrom);
+            Assert.AreEqual(to, parsedThermostat.VacationTo);
         }
 
         [TestMethod]
         public void CanRemoveVacationDates()
         {
+            thermostat.UpdateVacation(DateTime.Now, DateTime.Now);
+            new ParsedThermostat(thermostat).ApplyUpdates();
+
+            thermostat.CancelVacation();
+            new ParsedThermostat(thermostat).ApplyUpdates();
+
             var parsedThermostat = new ParsedThermostat(thermostat);
-            parsedThermostat.VacationFrom = DateTime.Parse("2019-02-13 13:30:00 +0100");
-            parsedThermostat.VacationTo = DateTime.Parse("2019-02-20 18:15:00 +0100");
-
-            parsedThermostat = new ParsedThermostat(thermostat);
-            parsedThermostat.VacationFrom = null;
-            parsedThermostat.VacationTo = null;
-
-            parsedThermostat = new ParsedThermostat(thermostat);
             Assert.IsNull(parsedThermostat.VacationFrom);
             Assert.IsNull(parsedThermostat.VacationTo);
         }

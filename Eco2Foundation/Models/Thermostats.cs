@@ -38,10 +38,10 @@ namespace Eco2.Models
             thermostats.RemoveAll(t => t.Serial == serial);
         }
 
-        public bool HasSecretFor(string serial)
+        public bool HasSecretAndUuidFor(string serial)
         {
             var thermostat = thermostats.Find(t => t.Serial == serial);
-            return thermostat != null && thermostat.SecretKey != null;
+            return thermostat != null && thermostat.SecretKey != null && thermostat.Uuid != null;
         }
 
         public Thermostat ThermostatWithSerial(string serial)

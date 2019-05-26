@@ -5,6 +5,7 @@ namespace Eco2.Models
     public class Thermostat
     {
         public string Serial;
+        public string Uuid;
 
         // Hex-encoded, and sometimes encrypted, values, as they have been read from the peripheral
         public string SecretKey;

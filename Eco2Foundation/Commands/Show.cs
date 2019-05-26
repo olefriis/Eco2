@@ -26,6 +26,7 @@ namespace Eco2.Commands
             var parsed = new ParsedThermostat(thermostat);
 
             Console.WriteLine($"Device name: {parsed.DeviceName}");
+            Console.WriteLine($"Device UUID: {thermostat.Uuid}");
             Console.WriteLine($"Battery level: {parsed.BatteryLevelPercent}%");
             Console.WriteLine("");
             Console.WriteLine($"Set-point/room temperature: {parsed.SetPointTemperature} / {parsed.RoomTemperature}");

@@ -18,7 +18,10 @@ namespace Eco2.Bluetooth
         event EventHandler<WroteCharacteristicValueEventArgs> WroteCharacteristicValueEventHandler;
 
         void StartScanning();
-        void ConnectToPeripheralWithName(string name, bool firstConnect);
+        // Used for first connect, where we only know the name of the peripheral
+        void ConnectToPeripheralWithName(string name);
+        // Used for subsequent connects, as we know the UUID by now
+        void ConnectToPeripheralWithNameAndUuid(string name, string uuid);
         void DiscoverCharacteristicsFor(Service service);
         void ReadCharacteristicsValue(Service service, Characteristic characteristic);
         void WriteCharacteristicsValue(Service service, Characteristic characteristic, byte[] value);

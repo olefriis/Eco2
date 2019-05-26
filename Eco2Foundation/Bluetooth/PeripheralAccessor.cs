@@ -25,11 +25,18 @@ namespace Eco2.Bluetooth
             bluetooth.FailureEventHandler += Failure;
         }
 
-        public Task<Peripheral> ConnectToPeripheralWithName(string name, bool firstConnect)
+        public Task<Peripheral> ConnectToPeripheralWithNameAndUuid(string name, string uuid)
         {
             connectCompletionSource = new TaskCompletionSource<Peripheral>();
             bluetooth.ConnectedToPeripheralEventHandler += ConnectedToPeripheral;
-            bluetooth.ConnectToPeripheralWithName(name, firstConnect);
+            if (uuid != null)
+            {
+                bluetooth.ConnectToPeripheralWithNameAndUuid(name, uuid);
+            }
+            else
+            {
+                bluetooth.ConnectToPeripheralWithName(name);
+            }
             bluetooth.StartScanning();
             return connectCompletionSource.Task;
         }

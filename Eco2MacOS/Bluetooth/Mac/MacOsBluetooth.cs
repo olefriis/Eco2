@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using CoreBluetooth;
 using Foundation;
 
@@ -11,8 +12,9 @@ namespace Eco2.Bluetooth.Mac
     public class MacOsBluetooth : IBluetooth
     {
         CBCentralManager central;
-        string nameOfPeripheralToConnectTo;
         bool firstConnect;
+        string nameOfPeripheralToConnectTo;
+        string uuidOfPeripheralToConnectTo;
         // Ensure that our peripheral object doesn't get garbage-collected
         List<CBPeripheral> discoveredPeripherals = new List<CBPeripheral>();
         CBPeripheral connectedCbPeripheral;
@@ -32,11 +34,19 @@ namespace Eco2.Bluetooth.Mac
             central.UpdatedState += UpdatedState;
         }
 
-        public void ConnectToPeripheralWithName(string name, bool firstConnect)
+        public void ConnectToPeripheralWithName(string name)
         {
-            Console.Error.WriteLine($"ConnectToPeripheralWithName(name={name}, firstConnect={firstConnect})");
-            this.nameOfPeripheralToConnectTo = name;
-            this.firstConnect = firstConnect;
+            Console.Error.WriteLine($"ConnectToPeripheralWithName(name={name})");
+            firstConnect = true;
+            nameOfPeripheralToConnectTo = name;
+        }
+
+        public void ConnectToPeripheralWithNameAndUuid(string name, string uuid)
+        {
+            Console.Error.WriteLine($"ConnectToPeripheralWithNameAndUuid(name={name}, uuid={uuid})");
+            firstConnect = false;
+            nameOfPeripheralToConnectTo = name;
+            uuidOfPeripheralToConnectTo = uuid;
         }
 
         public void DiscoverCharacteristicsFor(Service service)
@@ -74,10 +84,31 @@ namespace Eco2.Bluetooth.Mac
             Console.Error.WriteLine($"Updated state: {central.State}");
             if (central.State == CBCentralManagerState.PoweredOn)
             {
-                Console.Error.WriteLine("Scanning for peripherals");
-                central.DiscoveredPeripheral += DiscoveredPeripheral;
                 central.ConnectedPeripheral += ConnectedPeripheral;
                 central.FailedToConnectPeripheral += FailedToConnectPeripheral;
+
+                if (uuidOfPeripheralToConnectTo != null)
+                {
+                    var uuid = new NSUuid(uuidOfPeripheralToConnectTo);
+                    var peripherals = central.RetrievePeripheralsWithIdentifiers(uuid);
+                    if (peripherals.Length == 1)
+                    {
+                        Console.Error.WriteLine($"Connecting to known peripheral with UUID {uuid}");
+                        var peripheral = peripherals[0];
+                        discoveredPeripherals.Add(peripheral);
+                        central.ConnectPeripheral(peripheral);
+                        return;
+                    }
+                    else
+                    {
+                        // Somehow we've lost the peripheral from the list of known peripherals.
+                        // We probably need to do handshake all over.
+                        firstConnect = true;
+                    }
+                }
+
+                Console.Error.WriteLine("Scanning for peripherals");
+                central.DiscoveredPeripheral += DiscoveredPeripheral;
                 central.ScanForPeripherals(new CBUUID[0]);
             }
         }
@@ -153,7 +184,7 @@ namespace Eco2.Bluetooth.Mac
 
             Console.Error.WriteLine("Discovered services");
             var services = Array.ConvertAll(connectedCbPeripheral.Services, service => new Service(service.UUID.Uuid));
-            connectedPeripheral = new Peripheral(connectedCbPeripheral.Name, services);
+            connectedPeripheral = new Peripheral(connectedCbPeripheral.Name, connectedCbPeripheral.Identifier.ToString(), services);
             ConnectedToPeripheralEventHandler?.Invoke(this, new ConnectedToPeripheralEventArgs(connectedPeripheral));
         }
 

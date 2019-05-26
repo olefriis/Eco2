@@ -54,6 +54,7 @@ namespace Eco2.Models
             {
                 Name = "Thermostat1",
                 SecretKey = "ABC",
+                Uuid = "UUID123",
                 Temperature = "encoded-temperature-1",
                 UpdatedSetPointTemperature = Temperature.FromDegreesCelcius(22),
                 HasUpdatedVacationPeriod = true,
@@ -78,6 +79,7 @@ namespace Eco2.Models
             var firstReadThermostat = readThermostats.thermostats[0];
             Assert.AreEqual("Thermostat1", firstReadThermostat.Name);
             Assert.AreEqual("ABC", firstReadThermostat.SecretKey);
+            Assert.AreEqual("UUID123", firstReadThermostat.Uuid);
             Assert.AreEqual("encoded-temperature-1", firstReadThermostat.Temperature);
             Assert.AreEqual(22, firstReadThermostat.UpdatedSetPointTemperature.InDegreesCelcius);
             Assert.IsTrue(firstReadThermostat.HasUpdatedVacationPeriod);
@@ -113,11 +115,11 @@ namespace Eco2.Models
         {
             var thermostats = new Thermostats();
 
-            Assert.IsFalse(thermostats.HasSecretFor("Don't know this diddy"));
+            Assert.IsFalse(thermostats.HasSecretAndUuidFor("Don't know this diddy"));
         }
 
         [TestMethod]
-        public void KnowsWhenWeHaveNoSecretForThermostat()
+        public void KnowsWhenWeHaveNoSecretAndUuidForThermostat()
         {
             var thermostat = new Thermostat
             {
@@ -127,11 +129,11 @@ namespace Eco2.Models
             var thermostats = new Thermostats();
             thermostats.thermostats.Add(thermostat);
 
-            Assert.IsFalse(thermostats.HasSecretFor("Thermostat1"));
+            Assert.IsFalse(thermostats.HasSecretAndUuidFor("Thermostat1"));
         }
 
         [TestMethod]
-        public void KnowsWhenWeHaveSecretForThermostat()
+        public void KnowsThatSecretIsNotEnoughForSecretAndUuid()
         {
             var thermostat = new Thermostat
             {
@@ -142,7 +144,38 @@ namespace Eco2.Models
             var thermostats = new Thermostats();
             thermostats.thermostats.Add(thermostat);
 
-            Assert.IsTrue(thermostats.HasSecretFor("Thermostat1"));
+            Assert.IsFalse(thermostats.HasSecretAndUuidFor("Thermostat1"));
+        }
+
+        [TestMethod]
+        public void KnowsThatUuidIsNotEnoughForSecretAndUuid()
+        {
+            var thermostat = new Thermostat
+            {
+                Serial = "Thermostat1",
+                Uuid = "5D7000A0-0D45-41FC-B6AD-08CB8BC149B9",
+            };
+
+            var thermostats = new Thermostats();
+            thermostats.thermostats.Add(thermostat);
+
+            Assert.IsFalse(thermostats.HasSecretAndUuidFor("Thermostat1"));
+        }
+
+        [TestMethod]
+        public void KnowsWhenWeHaveSecretAndUuidForThermostat()
+        {
+            var thermostat = new Thermostat
+            {
+                Serial = "Thermostat1",
+                Uuid = "5D7000A0-0D45-41FC-B6AD-08CB8BC149B9",
+                SecretKey = "ABC"
+            };
+
+            var thermostats = new Thermostats();
+            thermostats.thermostats.Add(thermostat);
+
+            Assert.IsTrue(thermostats.HasSecretAndUuidFor("Thermostat1"));
         }
 
         [TestMethod]

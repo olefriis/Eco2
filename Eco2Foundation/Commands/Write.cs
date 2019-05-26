@@ -18,7 +18,7 @@ namespace Eco2.Commands
             thermostats = Thermostats.Read();
             accessor = new PeripheralAccessor(bluetooth);
 
-            if (!thermostats.HasSecretFor(serial))
+            if (!thermostats.HasSecretAndUuidFor(serial))
             {
                 Console.Error.WriteLine($"Has not previously connected to {serial}. Do a read first.");
                 Environment.Exit(1);
@@ -27,15 +27,19 @@ namespace Eco2.Commands
 
         public void Execute()
         {
-            Connect(serial).Wait();
+            var thermostat = thermostats.ThermostatWithSerial(serial);
+            Connect(thermostat).Wait();
+            thermostats.Write();
 
             Console.Error.WriteLine("Done");
             Environment.Exit(0);
         }
 
-        async Task Connect(string name)
+        async Task Connect(Thermostat thermostat)
         {
-            var connectedThermostat = await accessor.ConnectToPeripheralWithName(name, false);
+            var name = thermostat.Serial;
+            var uuid = thermostat.Uuid;
+            var connectedThermostat = await accessor.ConnectToPeripheralWithNameAndUuid(name, uuid);
 
             var mainService = FindService(connectedThermostat, Uuids.MAIN_SERVICE);
             var batteryService = FindService(connectedThermostat, Uuids.BATTERY_SERVICE);
@@ -43,7 +47,7 @@ namespace Eco2.Commands
             var mainServiceCharacteristics = await accessor.DiscoverCharacteristicsFor(mainService);
 
             var secretValueCharacteristic = Array.Find(mainServiceCharacteristics, c => c.Uuid == Uuids.SECRET_KEY);
-            if (secretValueCharacteristic == null && !thermostats.HasSecretFor(serial))
+            if (secretValueCharacteristic == null && !thermostats.HasSecretAndUuidFor(serial))
             {
                 Console.Error.WriteLine("You need to push the timer button on the thermostat");
                 Environment.Exit(1);
@@ -64,7 +68,6 @@ namespace Eco2.Commands
             var batteryServiceCharacteristics = await accessor.DiscoverCharacteristicsFor(batteryService);
             Console.Error.WriteLine("Discovered battery service characteristics");
 
-            var thermostat = thermostats.ThermostatWithSerial(serial);
             thermostat.BatteryLevel = await ReadCharacteristicWithUuid(batteryService, batteryServiceCharacteristics, Uuids.BATTERY_LEVEL);
             thermostat.Name = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.DEVICE_NAME);
             thermostat.Temperature = await ReadCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.TEMPERATURE);
@@ -78,8 +81,6 @@ namespace Eco2.Commands
 
             await WriteCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.TEMPERATURE, thermostat.Temperature);
             await WriteCharacteristicWithUuid(mainService, mainServiceCharacteristics, Uuids.SETTINGS, thermostat.Settings);
-
-            thermostats.Write();
 
             await accessor.Disconnect();
         }

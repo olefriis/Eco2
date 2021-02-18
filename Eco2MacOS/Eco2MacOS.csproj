@@ -44,12 +44,6 @@
     <Folder Include="Bluetooth\Mac\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\Current\lib\libxammac.dylib">
-      <Link>libxammac.dylib</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Eco2BluetoothApi\Eco2BluetoothApi.csproj">
       <Project>{6716A816-BE2B-417A-8355-D10C502204DD}</Project>
       <Name>Eco2BluetoothApi</Name>
@@ -58,6 +52,12 @@
       <Project>{6C14B3D1-E357-483E-BD37-FA06E69620AE}</Project>
       <Name>Eco2Foundation</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\Current\SDKs\Xamarin.macOS.sdk\lib\libxammac.dylib">
+      <Link>libxammac.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

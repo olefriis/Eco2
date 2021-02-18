@@ -7,10 +7,6 @@ namespace Eco2.Commands
 {
     public class Scan
     {
-        // No idea if we are too lax or not, but the string in between the below
-        // prefix and suffix is what the app displays as "MAC Address" of the
-        // thermostat.
-        const string ECO_2_PREFIX = "0;";
         const string ECO_2_SUFFIX = ";eTRV";
 
         IBluetooth bluetooth;
@@ -35,8 +31,7 @@ namespace Eco2.Commands
         void DiscoveredPeripheral(object sender, DiscoveredPeripheralEventArgs e)
         {
             var name = e.Name;
-            if (name.StartsWith(ECO_2_PREFIX, StringComparison.Ordinal)
-                && name.EndsWith(ECO_2_SUFFIX, StringComparison.Ordinal)
+            if (name.EndsWith(ECO_2_SUFFIX, StringComparison.Ordinal)
                 && !thermostatNames.Contains(name))
             {
                 Console.WriteLine(name);
